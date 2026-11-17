@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>کلینک مینجمنٹ</title>
+<style>
+:root{--bg:#f4f8f9;--card:#fff;--tx:#1c2430;--mu:#6b7686;--pr:#0e7c8a;--bd:#dfe6ea;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12181c;--card:#1b2328;--tx:#e8ecf1;--mu:#98a3b3;--pr:#3cb7c6;--bd:#2a343b}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Noto Nastaliq Urdu","Noto Naskh Arabic",system-ui,sans-serif;line-height:1.9}
+header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--pr);color:#fff}
+header button{background:#fff3;color:#fff;border:0;border-radius:8px;padding:4px 12px;font:inherit}
+nav{display:flex;gap:6px;overflow-x:auto;padding:8px;background:var(--card);border-bottom:1px solid var(--bd)}
+nav button{flex:none;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:20px;padding:2px 14px;font:inherit}
+nav button.on{background:var(--pr);color:#fff;border-color:var(--pr)}
+main{padding:12px;max-width:720px;margin:auto}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1;min-width:120px}
+input,select,textarea{width:100%;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}
+.btn{background:var(--pr);color:#fff;border:0;border-radius:8px;padding:6px 14px;font:inherit}
+.btn.g{background:var(--bg);color:var(--tx);border:1px solid var(--bd)}
+.stat{text-align:center}.stat b{display:block;font-size:1.6em;color:var(--pr)}
+.item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd)}
+.item:last-child{border:0}.mu{color:var(--mu);font-size:.85em}
+.tag{padding:0 10px;border-radius:12px;font-size:.85em}.ok{background:#0e7c8a22;color:var(--pr)}.no{background:#c0392b22;color:#c0392b}
+</style>
+</head>
+<body>
+<header><b id="ttl"></b><button id="lg"></button></header>
+<nav id="nav"></nav>
+<main id="v"></main>
+<script>
+var T={ur:{app:"کلینک مینجمنٹ",home:"ہوم",pat:"مریض",apt:"اپائنٹمنٹ",vis:"وزٹ",fee:"حساب",tot:"کل مریض",td:"آج کی اپائنٹمنٹ",due:"بقایا رقم",name:"نام",age:"عمر",ph:"فون",add:"شامل کریں",del:"حذف",date:"تاریخ",time:"وقت",done:"مکمل",pend:"باقی",diag:"تشخیص / نوٹ",med:"دوائیں",chg:"فیس",paid:"وصول",sv:"محفوظ",none:"ابھی کچھ نہیں",sum:"کل آمدنی",bal:"بقایا",pay:"رقم وصول کریں",amt:"رقم"},
+en:{app:"Clinic Management",home:"Home",pat:"Patients",apt:"Appointments",vis:"Visits",fee:"Accounts",tot:"Total patients",td:"Today's appointments",due:"Balance due",name:"Name",age:"Age",ph:"Phone",add:"Add",del:"Delete",date:"Date",time:"Time",done:"Done",pend:"Pending",diag:"Diagnosis / notes",med:"Medicines",chg:"Fee",paid:"Received",sv:"Save",none:"Nothing yet",sum:"Total income",bal:"Balance",pay:"Receive payment",amt:"Amount"}};
+var D={lang:"ur",tab:"home",p:[],a:[],v:[],pay:[]},k="clinic_v1";
+try{var x=localStorage.getItem(k);if(x)D=JSON.parse(x)}catch(e){}
+function sv(){try{localStorage.setItem(k,JSON.stringify(D))}catch(e){}}
+function L(w){return T[D.lang][w]}
+function E(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function today(){var d=new Date();return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2)}
+function uid(){return Date.now()+Math.floor(Math.random()*999)}
+function val(i){return document.getElementById(i).value.trim()}
+function pn(id){var s=D.p.filter(function(i){return i.id==id})[0];return s?s.n:"-"}
+function opts(){return D.p.map(function(s){return '<option value="'+s.id+'">'+E(s.n)+'</option>'}).join("")}
+function charged(id){return D.v.filter(function(v){return v.pid==id}).reduce(function(a,v){return a+v.c},0)}
+function recv(id){return D.pay.filter(function(v){return v.pid==id}).reduce(function(a,v){return a+v.a},0)}
+var tabs=["home","pat","apt","vis","fee"];
+function go(t){D.tab=t;sv();draw()}
+document.getElementById("lg").onclick=function(){D.lang=D.lang=="ur"?"en":"ur";sv();draw()};
+function nav(){document.getElementById("ttl").textContent=L("app");document.getElementById("lg").textContent=D.lang=="ur"?"English":"اردو";document.documentElement.lang=D.lang;document.documentElement.dir=D.lang=="ur"?"rtl":"ltr";
+document.getElementById("nav").innerHTML=tabs.map(function(t){return '<button class="'+(D.tab==t?"on":"")+'" onclick="go(\''+t+'\')">'+L(t)+'</button>'}).join("")}
+function none(){return '<span class="mu">'+L("none")+'</span>'}
+function draw(){nav();var h="",d=today();
+if(D.tab=="home"){var ta=D.a.filter(function(a){return a.d==d}).length;var bal=D.p.reduce(function(s,p){return s+Math.max(0,charged(p.id)-recv(p.id))},0);
+h='<div class="row"><div class="card stat"><b>'+D.p.length+'</b>'+L("tot")+'</div><div class="card stat"><b>'+ta+'</b>'+L("td")+'</div><div class="card stat"><b>'+bal+'</b>'+L("due")+'</div></div>'}
+if(D.tab=="pat"){h='<div class="card"><div class="row"><input id="n" placeholder="'+L("name")+'"><input id="g" placeholder="'+L("age")+'" inputmode="numeric"><input id="p" placeholder="'+L("ph")+'" inputmode="tel"></div><p><button class="btn" onclick="addP()">'+L("add")+'</button></p></div><div class="card">'+(D.p.length?D.p.map(function(p){return '<div class="item"><span>'+E(p.n)+' <span class="mu">'+E(p.g||"")+' · '+E(p.p||"")+'</span></span><button class="btn g" onclick="delP('+p.id+')">'+L("del")+'</button></div>'}).join(""):none())+'</div>'}
+if(D.tab=="apt"){h='<div class="card"><div class="row"><select id="as">'+opts()+'</select><input id="ad" type="date" value="'+d+'"><input id="at" type="time"></div><p><button class="btn" onclick="addA()">'+L("add")+'</button></p></div><div class="card">'+(D.a.length?D.a.slice().sort(function(x,y){return(x.d+x.t)>(y.d+y.t)?1:-1}).map(function(a){return '<div class="item"><span>'+E(pn(a.pid))+' <span class="mu">'+a.d+' '+E(a.t||"")+'</span></span><span><button class="btn'+(a.ok?"":" g")+'" onclick="tgA('+a.id+')">'+(a.ok?L("done"):L("pend"))+'</button> <button class="btn g" onclick="delA('+a.id+')">'+L("del")+'</button></span></div>'}).join(""):none())+'</div>'}
+if(D.tab=="vis"){h='<div class="card"><select id="vs">'+opts()+'</select><p><textarea id="vd" rows="2" placeholder="'+L("diag")+'"></textarea></p><p><textarea id="vm" rows="2" placeholder="'+L("med")+'"></textarea></p><div class="row"><input id="vc" placeholder="'+L("chg")+'" inputmode="numeric"><input id="vp" placeholder="'+L("paid")+'" inputmode="numeric"></div><p><button class="btn" onclick="addV()">'+L("sv")+'</button></p></div><div class="card">'+(D.v.length?D.v.slice().reverse().map(function(v){return '<div class="item"><span><b>'+E(pn(v.pid))+'</b> <span class="mu">'+v.d+'</span><br>'+E(v.dg)+'<br><span class="mu">'+E(v.m)+'</span></span><button class="btn g" onclick="delV('+v.id+')">'+L("del")+'</button></div>'}).join(""):none())+'</div>'}
+if(D.tab=="fee"){var inc=D.pay.reduce(function(a,v){return a+v.a},0);h='<div class="card stat"><b>'+inc+'</b>'+L("sum")+'</div><div class="card"><div class="row"><select id="fs">'+opts()+'</select><input id="fa" placeholder="'+L("amt")+'" inputmode="numeric"></div><p><button class="btn" onclick="addF()">'+L("pay")+'</button></p></div><div class="card">'+(D.p.length?D.p.map(function(p){var u=charged(p.id)-recv(p.id);return '<div class="item"><span>'+E(p.n)+'</span><span class="tag '+(u>0?"no":"ok")+'">'+(u>0?L("bal")+" "+u:L("paid"))+'</span></div>'}).join(""):none())+'</div>'}
+document.getElementById("v").innerHTML=h}
+function addP(){var n=val("n");if(!n)return;D.p.push({id:uid(),n:n,g:val("g"),p:val("p")});sv();draw()}
+function delP(i){D.p=D.p.filter(function(p){return p.id!=i});D.a=D.a.filter(function(a){return a.pid!=i});D.v=D.v.filter(function(v){return v.pid!=i});D.pay=D.pay.filter(function(v){return v.pid!=i});sv();draw()}
+function addA(){if(!D.p.length||!val("ad"))return;D.a.push({id:uid(),pid:val("as"),d:val("ad"),t:val("at")});sv();draw()}
+function tgA(i){D.a.forEach(function(a){if(a.id==i)a.ok=!a.ok});sv();draw()}
+function delA(i){D.a=D.a.filter(function(a){return a.id!=i});sv();draw()}
+function addV(){if(!D.p.length)return;var c=Number(val("vc"))||0,p=Number(val("vp"))||0,pid=val("vs");D.v.push({id:uid(),pid:pid,d:today(),dg:val("vd"),m:val("vm"),c:c});if(p)D.pay.push({pid:pid,a:p,d:today()});sv();draw()}
+function delV(i){D.v=D.v.filter(function(v){return v.id!=i});sv();draw()}
+function addF(){var a=Number(val("fa"));if(!a||!D.p.length)return;D.pay.push({pid:val("fs"),a:a,d:today()});sv();draw()}
+draw();
+</script>
+</body>
+</html>
